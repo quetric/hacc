@@ -14,7 +14,7 @@ echo ""
 echo "${bold}sgutil program reset${normal}"
 
 #check for virtualized
-#virtualized=$(/opt/cli/common/is_virtualized)
+#virtualized=$(${CLI_WORKDIR}/common/is_virtualized)
 #if [ "$virtualized" = "true" ]; then
 #    echo ""
 #    echo "Sorry, this command is only available for ${bold}non-virtualized servers.${normal}"
@@ -23,7 +23,7 @@ echo "${bold}sgutil program reset${normal}"
 #fi
 
 #check for vivado_developers
-#member=$(/opt/cli/common/is_member $username vivado_developers)
+#member=$(${CLI_WORKDIR}/common/is_member $username vivado_developers)
 #if [ "$member" = "false" ]; then
 #    echo ""
 #    echo "Sorry, ${bold}$username!${normal} You are not granted to use this command."
@@ -42,15 +42,15 @@ done
 
 #sgutil get serial if there is only one FPGA and not serial_found
 if [[ $(lspci | grep Xilinx | wc -l) = 1 ]] & [[ $serial_found = "0" ]]; then
-    #serial_number=$(/opt/cli/get/serial | cut -d "=" -f2)
+    #serial_number=$(${CLI_WORKDIR}/get/serial | cut -d "=" -f2)
     serial_number="--device"
 fi
 
 #revert
-/opt/cli/program/revert 
+${CLI_WORKDIR}/program/revert 
 
 #reset device (we delete any xclbin)
 if [[ $(lspci | grep Xilinx | wc -l) = 2 ]]; then
-    /opt/xilinx/xrt/bin/xbutil reset $serial_number --force
+    ${XILINX_XRT}/bin/xbutil reset $serial_number --force
     echo ""
 fi

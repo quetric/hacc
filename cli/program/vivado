@@ -21,7 +21,7 @@ echo ""
 echo "${bold}sgutil program vivado${normal}"
 
 #check for vivado_developers
-member=$(/opt/cli/common/is_member $username vivado_developers)
+member=$(${CLI_WORKDIR}/common/is_member $username vivado_developers)
 if [ "$member" = "false" ]; then
     echo ""
     echo "Sorry, ${bold}$username!${normal} You are not granted to use this command."
@@ -84,50 +84,56 @@ fi
 
 #print help
 if [[ $use_help = "1" ]]; then
-    /opt/cli/sgutil program vivado -h
+    ${CLI_WORKDIR}/sgutil program vivado -h
     exit
 fi
 
 # when used, bit_file, ltx_file or driver_file cannot be empty
 if [ "$program_bitstream" = "1" ] && [ "$bit_file" = "" ]; then
-    /opt/cli/sgutil program vivado -h
+    ${CLI_WORKDIR}/sgutil program vivado -h
     exit
 fi
 
 if [ "$ltx_found" = "1" ] && [ "$ltx_file" = "" ]; then
-    /opt/cli/sgutil program vivado -h
+    ${CLI_WORKDIR}/sgutil program vivado -h
     exit
 fi
 
 if [ "$program_driver" = "1" ] && [ "$driver_file" = "" ]; then
-    /opt/cli/sgutil program vivado -h
+    ${CLI_WORKDIR}/sgutil program vivado -h
     exit
 fi
 
 #sgutil get device if there is only one FPGA and not name_found
 if [[ $(lspci | grep Xilinx | wc -l) = 1 ]] & [[ $name_found = "0" ]]; then
-    device_name=$(/opt/cli/get/device | cut -d "=" -f2)
+    device_name=$(${CLI_WORKDIR}/get/device | cut -d "=" -f2)
 fi
 
 #sgutil get serial if there is only one FPGA and not serial_found
 if [[ $(lspci | grep Xilinx | wc -l) = 1 ]] & [[ $serial_found = "0" ]]; then
-    serial_number=$(/opt/cli/get/serial | cut -d "=" -f2)
+    serial_number=$(${CLI_WORKDIR}/get/serial | cut -d "=" -f2)
 fi
 
 #get release branch
-branch=$(/opt/xilinx/xrt/bin/xbutil --version | grep -i -w 'Branch' | tr -d '[:space:]')
+branch=$(${XILINX_XRT}/bin/xbutil --version | grep -i -w 'Branch' | tr -d '[:space:]')
 
 if [[ $program_bitstream = "1" ]]; then
 
     #revert to xrt first if FPGA is already in baremetal (it is proven to be needed on non-virtualized environments)
-    virtualized=$(/opt/cli/common/is_virtualized)
+    virtualized=$(${CLI_WORKDIR}/common/is_virtualized)
     if [ "$virtualized" = "false" ] && [[ $(lspci | grep Xilinx | wc -l) = 1 ]]; then 
-        sudo /opt/cli/program/revert
+        sudo ${CLI_WORKDIR}/program/revert
     fi
 
     echo ""
-	echo "${bold}Programming bitstream:${normal}"
-    /tools/Xilinx/Vivado/${branch:7:6}/bin/vivado -nolog -nojournal -mode batch -source /opt/cli/program/flash_bitstream.tcl -tclargs $SERVERADDR $serial_number $device_name $bit_file $ltx_file
+    if [ -f $bit_file ]; then
+    	echo "${bold}Programming bitstream:${normal}"
+        echo "$SERVERADDR $serial_number $device_name $bit_file $ltx_file"
+        ${XILINX_VIVADO}/bin/vivado -nolog -nojournal -mode batch -source ${CLI_WORKDIR}/program/flash_bitstream.tcl -tclargs $SERVERADDR $serial_number $device_name $bit_file $ltx_file
+    else 
+        echo "${bold}Bitstream file does not exist${normal}"
+        exit   
+    fi
 
     #check for virtualized and apply PCI hot plug
     if [[ $(lspci | grep Xilinx | wc -l) = 2 ]]; then
@@ -142,13 +148,13 @@ if [[ $program_bitstream = "1" ]]; then
             echo "Subject: $username requires to go to baremetal/warm boot ($hostname)" | sendmail $EMAIL
             exit
         elif [ "$virtualized" = "false" ]; then
-            #sudo /opt/cli/program/pci_hot_plug ${hostname}
-            /opt/cli/program/rescan
+            #sudo ${CLI_WORKDIR}/program/pci_hot_plug ${hostname}
+            ${CLI_WORKDIR}/program/rescan
         fi
     fi
 
     #check for virtualized and apply PCI hot plug
-    #virtualized=$(/opt/cli/common/is_virtualized)
+    #virtualized=$(${CLI_WORKDIR}/common/is_virtualized)
     #if [ "$virtualized" = "true" ]; then
     #    echo ""
     #    echo "${bold}The server needs to warm boot to operate in Vivado workflow. For this purpose:${normal}"
@@ -162,7 +168,7 @@ if [[ $program_bitstream = "1" ]]; then
     #elif [ "$virtualized" = "false" ]; then
     #    #run PCI hot plug
     #    if [[ $(lspci | grep Xilinx | wc -l) = 2 ]]; then
-    #        sudo /opt/cli/program/pci_hot_plug ${hostname}
+    #        sudo ${CLI_WORKDIR}/program/pci_hot_plug ${hostname}
     #    fi
     #fi
 fi
@@ -197,7 +203,7 @@ if [[ $program_driver = "1" ]]; then
 
     echo ""
 
-    #sudo bash -c "/opt/cli/program/fpga_chmod 0"
-    #sudo /opt/cli/program/fpga_chmod 0 ===========> this belongs to coyote
+    #sudo bash -c "${CLI_WORKDIR}/program/fpga_chmod 0"
+    #sudo ${CLI_WORKDIR}/program/fpga_chmod 0 ===========> this belongs to coyote
 
 fi

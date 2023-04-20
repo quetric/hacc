@@ -63,6 +63,10 @@ elif [ "$hostname" = "alveo-u55c-01" ] || [ "$hostname" = "alveo-u55c-02" ] || [
     upstream_port="c4:00.0"
 	root_port="c0:01.1"
 	LinkCtl="58"
+elif [ "$hostname" = "xirxlabs57" ]; then
+    upstream_port="81:00.0"
+	root_port="80:01.1"
+	LinkCtl="58"
 else
     cont="0"
     err_msg="$1: unvalid host_name."

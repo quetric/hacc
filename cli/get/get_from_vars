@@ -23,7 +23,7 @@ parser.add_argument("--fpga-serial-numbers",
                     help="print the fpga serial numbers",
                     required=False)
 parser.add_argument("-f", "--file",
-                    default="/opt/user_tools/vars.yml",
+                    default=os.environ.get('CLI_VARS', '/opt/user_tools')+"/vars.yml",
                     help="path to vars file",
                     required=False)
 parser.add_argument("-l", "--local",

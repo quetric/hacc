@@ -1,0 +1,58 @@
+
+vivado_users:
+  - lucianp
+
+docker_users:
+  - lucianp
+
+wireshark_users:
+  - lucianp
+
+reboot_requested: false
+
+vms:
+
+vm_settings:
+
+fpga_device_names:
+  xirxlabs57: 'xcu280_u55c_0'
+  xirxlabs58: 'xcu280_u55c_0'
+  xirxlabs61: 'xcu280_u55c_0'
+
+fpga_serial_numbers:
+  xirxlabs57: 'XFL1F5PABGOBA'
+  xirxlabs58: ''
+  xirxlabs61: ''
+
+network_settings:
+  xirxlabs57:
+    interfaces:
+      mellanox:
+        - mac: ''
+          ip: ''
+      fpga:
+        - mac: '00:0A:35:0F:4E:80'
+          ip: '10.0.0.1' 
+        - mac: '00:0A:35:0F:4E:84'
+          ip: '10.0.0.2' 
+  xirxlabs58:
+    interfaces:
+      mellanox:
+        - mac: ''
+          ip: ''
+      fpga:
+        - mac: ''
+          ip: '10.0.0.3' 
+        - mac: ''
+          ip: '10.0.0.4'
+  xirxlabs61:
+    interfaces:
+      mellanox:
+        - mac: ''
+          ip: ''
+      fpga:
+        - mac: ''
+          ip: '10.0.0.5' 
+        - mac: ''
+          ip: '10.0.0.6'
+

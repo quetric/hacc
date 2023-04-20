@@ -3,8 +3,16 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-# constants
-CLI_WORKDIR="/opt/cli"
+# set CLI_WORKDIR if not already set by user
+if [ -z "${CLI_WORKDIR}" ]
+then
+    export CLI_WORKDIR="/opt/cli"
+fi
+
+if [ -z "${CLI_VARS}" ]
+then
+    export CLI_VARS="/opt/user_tools/"
+fi
 
 # inputs
 command=$1
@@ -31,7 +39,7 @@ COMMANDS:
 }
 
 cli_version() {
-    version=$(cat $CLI_WORKDIR/VERSION)
+    version=$(cat ${CLI_WORKDIR}/VERSION)
     echo ""
     echo "Version              : $version"
     echo ""
@@ -65,14 +73,14 @@ command_run() {
 	      fi
       done
 
-      /opt/cli/${command_arguments_flags[0]}/${command_arguments_flags[1]} $flags # Example: /opt/cli/validate/iperf -P 6
+      ${CLI_WORKDIR}/${command_arguments_flags[0]}/${command_arguments_flags[1]} $flags # Example: ${CLI_WORKDIR}/validate/iperf -P 6
 
     fi
 }
 
 xilinx_build_check() {
 
-    EMAIL=$(/opt/cli/common/get_email) #"jmoyapaya@ethz.ch"
+    EMAIL=$(${CLI_WORKDIR}/common/get_email) #set your email
     username=$USER
     url="${HOSTNAME}"
     hostname="${url%%.*}"
@@ -698,7 +706,7 @@ case "$command" in
         #  build_mpi_help
         #  exit 1
         #fi
-        #/opt/cli/build/mpi
+        #${CLI_WORKDIR}/build/mpi
         valid_flags="-p --project -h --help" 
         command_run $command_arguments_flags"@"$valid_flags
         ;;
@@ -755,24 +763,24 @@ case "$command" in
           new_coyote_help
           exit 1
         fi
-        /opt/cli/new/coyote
+        ${CLI_WORKDIR}/new/coyote
         ;;
       mpi)
         if [ "$#" -ne 2 ]; then
           new_mpi_help
           exit 1
         fi
-        /opt/cli/new/mpi
+        ${CLI_WORKDIR}/new/mpi
         ;;
       vitis)
         if [ "$#" -ne 2 ]; then
           new_vitis_help
           exit 1
         fi
-        /opt/cli/new/vitis
+        ${CLI_WORKDIR}/new/vitis
         ;;
       #vivado)
-      #  /opt/cli/new/vivado
+      #  ${CLI_WORKDIR}/new/vivado
       #  ;;
       *)
         new_help
@@ -794,7 +802,7 @@ case "$command" in
           program_reboot_help
           exit 1
         fi
-        /opt/cli/program/reboot
+        ${CLI_WORKDIR}/program/reboot
         ;;
       rescan) # flags can be empty if we have only one FPGA
         valid_flags="-s --serial -h --help"
@@ -863,7 +871,7 @@ case "$command" in
           set_keys_help
           exit 1
         fi
-        eval "/opt/cli/set/keys"
+        eval "${CLI_WORKDIR}/set/keys"
         ;;
       write) 
         valid_flags="-i --index -h --help"
@@ -883,7 +891,7 @@ case "$command" in
         #  validate_coyote_help
         #  exit 1
         #fi
-        #/opt/cli/validate/coyote
+        #${CLI_WORKDIR}/validate/coyote
         command_run $command_arguments_flags"@"$valid_flags
       ;;
       iperf)
@@ -912,7 +920,7 @@ case "$command" in
         command_run $command_arguments_flags"@"$valid_flags
       ;;
       #openmpi) 
-      #  eval "/opt/cli/validate/openmpi"
+      #  eval "${CLI_WORKDIR}/validate/openmpi"
       #;;
       *)
         validate_help

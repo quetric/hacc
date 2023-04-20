@@ -9,7 +9,7 @@ flags=$@
 # set default
 udp_server=""
 if [ "$flags" = "" ]; then
-    flags="--fpga-serial-numbers -l"
+    flags="--fpga-device-names -l"
 else
     read -a flags <<< "$flags"
     for (( i=0; i<${#flags[@]}; i++ ))
@@ -21,7 +21,7 @@ else
 	    fi
     done
     flags="${flags[*]}" # convert array of strings into a string
-    flags="--fpga-serial-numbers "$flags
+    flags="--fpga-device-names "$flags
 fi
 
-/opt/cli/get/get_from_vars $flags | sed "s/_/-/g" | sed "s/fpga-serial-numbers-//g" | sed "s/\"//g"
+${CLI_WORKDIR}/get/get_from_vars $flags | sed "s/fpga_device_names_//g" | sed "s/\"//g" # | sed "s/_/-/"
